@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import json
 from geopy import distance
 
-json_f = open('resources/landingData.JSON')
+json_f = open('landingData.JSON')
 data = json.load(json_f)
 
 lat_long_list = []
