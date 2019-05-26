@@ -1,13 +1,13 @@
 Drone 
 
-A project to plot the distance of a drone from a target 
+A project to plot the horizontal distance of a drone from a target 
 point-over-ground to its horizontal location.
 
 Getting Started
 
 Clone the repository to your local environment, then add the
 landingData.JSON file to the project root 
-(the program will look for it there. The file is 
+(The code will look for it there. The file is 
 kept out of the repository for data privacy considerations.)
 
 Locally, run read_and_plot.py
