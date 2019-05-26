@@ -1,47 +1,60 @@
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+import numpy as np
 import json
 from geopy import distance
 
+# constants
+latlong_exponent = 10**7
+msec_to_sec = 1/1000
+m_to_cm = 100
+
+# givens
+target_pog = (- 35.3632296, 149.1652651)
+
+
+# class definitions
+class DataPoint:
+    def __init__(self, time, lat, long):
+        self.time = time
+        self.lat = lat
+        self.long = long
+
+
+# read data from file
 json_f = open('landingData.JSON')
 data = json.load(json_f)
 
-lat_long_list = []
+# organize into data structure
+point_list = []
 for entry in data:
-    print(entry)
-    cur = entry["time_boot_ms"], entry['lat']/(10**7), entry['lon']/(10**7)
-    lat_long_list.append(cur)
+    point_list.append(DataPoint(time=entry["time_boot_ms"],
+                                lat=entry['lat']/latlong_exponent,
+                                long=entry['lon']/latlong_exponent))
 
-target_pog = (- 35.3632296, 149.1652651)
+# sort points by time in increasing order
+point_list.sort(key=lambda x: x.time)
 
-print(lat_long_list)
-lat_long_list.sort(key=lambda x: x[0])
-print(lat_long_list)
+# collect and compute data to plot
+deviation_to_time = []
+for point in point_list:
+    deviation = round(distance.distance((point.lat, point.long), target_pog).m, 2)
+    deviation_to_time.append((point.time * msec_to_sec, deviation * m_to_cm))
 
-deviation_vs_time = []
-for entry in lat_long_list:
-    entry_coords = entry[1], entry[2]
-    cur = entry[0], round(distance.distance(entry_coords, target_pog).m, 2)
-    deviation_vs_time.append(cur)
+# prepare data to plot
+data_in_array = np.array(deviation_to_time)
+transposed = data_in_array.T
+x, y = transposed
 
-print(deviation_vs_time)
-
-time = []
-deviation = []
-for e in deviation_vs_time:
-    deviation.append(e[1]*100)
-    time.append(e[0])
-
-print(deviation)
-print(time)
-
-
-# red dashes, blue squares and green triangles
-plt.plot(time, deviation, 'ro', time, deviation, 'k')
-plt.axis([63000, 82000, 0, 300])
+# plot data
+fig, ax = plt.subplots(1, 1)
+ax.set_xlim(63, 82)
+ax.set_ylim(0, 300)
+ax.plot(x, y, 'ro')
+ax.plot(x, y, 'b-')
+plt.xlabel('Time (seconds)')
+plt.ylabel('Deviation from POG (cm)')
+ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
+ax.yaxis.set_major_locator(ticker.MultipleLocator(20))
+plt.grid(True)
 plt.show()
-
-
-
-
-
-
