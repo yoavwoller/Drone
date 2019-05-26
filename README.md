@@ -18,6 +18,7 @@ In addition to python 3.x, you will need the following
 python modules installed in your local environment:
 matplotlib
 geopy
+numpy
 
 Author
 
